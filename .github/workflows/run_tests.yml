@@ -1,55 +1,46 @@
-name: Run Selenium Tests with Mocha and Edge
+name: Run Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:  # Allows manual execution
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Full Ubuntu VM
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
+    - name: Install Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: '14'
+        node-version: 20
 
-    - name: Install dependencies
-      run: |
-        npm install
-        npm install -g mocha
-        npm install selenium-webdriver
+    - name: Install Chrome
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: 120
+        install-dependencies: true
 
-    - name: Install Microsoft Edge
-      run: |
-        curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-        sudo install -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/
-        sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
-        sudo rm microsoft.gpg
-        sudo apt-get update
-        sudo apt-get install microsoft-edge-dev
+    - name: Verify Chrome Installation
+      run: google-chrome --version
 
-    - name: Download Microsoft Edge WebDriver
+    - name: Kill Running Chrome Processes
       run: |
-        EDGE_VERSION=$(microsoft-edge --version | grep -oP '\d+\.\d+\.\d+\.\d+')
-        EDGE_MAJOR_VERSION=$(echo $EDGE_VERSION | cut -d'.' -f1)
-        EDGE_DRIVER_VERSION=$(curl -s https://msedgedriver.azureedge.net/LATEST_RELEASE_${EDGE_MAJOR_VERSION})
-        wget https://msedgedriver.azureedge.net/$EDGE_DRIVER_VERSION/edgedriver_linux64.zip
-        unzip edgedriver_linux64.zip -d /usr/local/bin
-        chmod +x /usr/local/bin/msedgedriver
+        pkill -f chrome || true  # Ignore errors if no process is running
 
-    - name: Start HTTP server
-      run: |
-        python -m http.server 8000 &
+    - name: Install Dependencies
+      run: npm install
+      working-directory: ./test  # Ensure the correct working directory
 
-    - name: Run Mocha tests
+    - name: Start Web Server
       run: |
-        export PATH=$PATH:/usr/local/bin
-        mocha tests/ --timeout 10000
+        python3 -m http.server 8000 &  # Run in the background
+      working-directory: ./src
+
+    - name: Run Tests with WebDriver Fix
+      run: |
+        npx mocha "test/test1_subtraction.test.js"
+      env:
+        CHROME_BIN: /usr/bin/google-chrome
+        SELENIUM_BROWSER: chrome
