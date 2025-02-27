@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install selenium
+        pip install selenium trio trio-websocket urllib3
 
     - name: Start HTTP server
       run: |
