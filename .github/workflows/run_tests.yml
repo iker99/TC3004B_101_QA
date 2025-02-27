@@ -38,8 +38,9 @@ jobs:
 
     - name: Download Microsoft Edge WebDriver
       run: |
-        EDGE_VERSION=$(microsoft-edge --version | cut -d' ' -f3)
-        EDGE_DRIVER_VERSION=$(curl -s https://msedgedriver.azureedge.net/LATEST_RELEASE_${EDGE_VERSION%.*})
+        EDGE_VERSION=$(microsoft-edge --version | grep -oP '\d+\.\d+\.\d+\.\d+')
+        EDGE_MAJOR_VERSION=$(echo $EDGE_VERSION | cut -d'.' -f1)
+        EDGE_DRIVER_VERSION=$(curl -s https://msedgedriver.azureedge.net/LATEST_RELEASE_${EDGE_MAJOR_VERSION})
         wget https://msedgedriver.azureedge.net/$EDGE_DRIVER_VERSION/edgedriver_linux64.zip
         unzip edgedriver_linux64.zip -d /usr/local/bin
         chmod +x /usr/local/bin/msedgedriver
