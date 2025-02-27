@@ -1,4 +1,4 @@
-name: Run Selenium Tests
+name: Run Selenium Tests with Mocha
 
 on:
   push:
@@ -16,20 +16,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
       with:
-        python-version: '3.8'
+        node-version: '14'
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install selenium trio trio-websocket urllib3
+        npm install
+        npm install -g mocha
 
     - name: Start HTTP server
       run: |
         python -m http.server 8000 &
-  
-    - name: Run Selenium tests
+
+    - name: Run Mocha tests
       run: |
-        python -m pytest tests/
+        mocha tests/ --timeout 10000
