@@ -26,6 +26,19 @@ jobs:
         npm install
         npm install -g mocha
 
+    - name: Install Microsoft Edge
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y microsoft-edge-stable
+
+    - name: Download Edge WebDriver
+      run: |
+        EDGE_VERSION=$(microsoft-edge --version | grep -oP '\d+\.\d+\.\d+')
+        wget -N https://msedgedriver.azureedge.net/$EDGE_VERSION/edgedriver_linux64.zip
+        unzip edgedriver_linux64.zip
+        sudo mv msedgedriver /usr/local/bin/
+        sudo chmod +x /usr/local/bin/msedgedriver
+
     - name: Start HTTP server
       run: |
         python -m http.server 8000 &
