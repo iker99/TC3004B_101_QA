@@ -1,73 +1,24 @@
 name: Run tests
 
- 
-
-on:
-
-  workflow_dispatch:
-
-  
+on: [push, pull_request]
 
 jobs:
-
   test:
-
-    name: Test
-
-    runs-on: ubuntu-22.04
-
- 
-
-    container:
-
-      image: node:20
-
- 
-
+    runs-on: ubuntu-latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-      - uses: actions/setup-node@v4
+    - name: Install dependencies
+      run: npm install
 
-        with:
+    - name: Change permissions for Mocha
+      run: chmod +x ./node_modules/.bin/mocha
 
-          node-version: '20'
-
-      - uses: browser-actions/setup-chrome@v1
-
-        with:
-
-          chrome-version: 120
-
-          install-dependencies: true
-
-      - run: |
-
-            cd src
-
-            python3 -m http.server 8000 &
-
-            sleep 10 &&
-
-            curl http://localhost:8000
-
-            cd ..
-
-            cd tests
-
-            npm install
-
-            ./node_modules/.bin/mocha *.js
-
-       
-
-      - uses: actions/upload-artifact@v4
-
-        if: always()
-
-        with:
-
-          name: screenshots
-
-          path: screenshots/
+    - name: Run tests
+      run: npm test
