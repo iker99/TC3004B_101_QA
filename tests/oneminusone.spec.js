@@ -7,9 +7,22 @@ describe('One minus one', function() {
   let driver
   let vars
   beforeEach(async function() {
-    driver = await new Builder().forBrowser('chrome').build()
-    vars = {}
-  })
+    const options = new chrome.Options()
+      .addArguments('--headless') // Run without UI
+      .addArguments('--no-sandbox') // Required for GitHub Actions
+      .addArguments('--disable-dev-shm-usage'); // Prevent shared memory issues
+    
+    try {
+      driver = await new Builder()
+        .forBrowser('chrome')
+        .setChromeOptions(options)
+        .build();
+      vars = {};
+    } catch (error) {
+      console.error("Failed to initialize WebDriver:", error);
+      throw error;
+    }
+  });
   afterEach(async function() {
     await driver.quit();
   })
