@@ -37,10 +37,6 @@ jobs:
       - name: Verify Chrome Installation
         run: google-chrome --version
 
-      - name: Kill Running Chrome Processes
-        run: |
-          pkill -f chrome || true  # Ignore errors if no process is running
-
       - name: Run Tests with WebDriver Fix
         run: |
           npx mocha tests/*.js
