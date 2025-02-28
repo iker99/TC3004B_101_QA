@@ -1,12 +1,9 @@
 name: Run Tests
-
 on:
   workflow_dispatch:  # Allows manual execution
-
 jobs:
   test:
     runs-on: ubuntu-latest  # Full Ubuntu VM
-
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -27,6 +24,20 @@ jobs:
     - name: Verify Edge Installation
       run: microsoft-edge --version
 
+    - name: Install Microsoft Edge WebDriver
+      run: |
+        EDGE_VERSION=$(microsoft-edge --version | awk '{print $3}')
+        MAJOR_VERSION=${EDGE_VERSION%%.*}
+        echo "Edge version: $EDGE_VERSION, Major version: $MAJOR_VERSION"
+        DRIVER_VERSION=$(curl -s "https://msedgedriver.azureedge.net/LATEST_RELEASE_${MAJOR_VERSION}")
+        echo "Driver version: $DRIVER_VERSION"
+        curl -Lo msedgedriver.zip "https://msedgedriver.azureedge.net/${DRIVER_VERSION}/edgedriver_linux64.zip"
+        unzip msedgedriver.zip
+        chmod +x msedgedriver
+        sudo mv msedgedriver /usr/local/bin/
+        echo "Edge WebDriver installed at: $(which msedgedriver)"
+        msedgedriver --version
+
     - name: Kill Running Edge Processes
       run: |
         pkill -f microsoft-edge || true  # Ignore errors if no process is running
@@ -46,3 +57,5 @@ jobs:
       env:
         EDGE_BIN: /usr/bin/microsoft-edge
         SELENIUM_BROWSER: edge
+        PATH: ${{ github.workspace }}:/usr/local/bin:$PATH
+        EDGEWEBDRIVER: /usr/local/bin/msedgedriver
