@@ -33,10 +33,9 @@ jobs:
         chrome-version: latest
         install-dependencies: true
 
-    - name: Install ChromeDriver
+    - name: Install ChromeDriver using WebDriver Manager
       run: |
-        sudo apt-get update
-        sudo apt-get install -y chromium-chromedriver
+        npx webdriver-manager update --versions.chrome 133.0.6943.126
 
     - name: Verify Chrome Installation
       run: google-chrome --version
