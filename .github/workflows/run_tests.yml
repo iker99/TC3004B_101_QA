@@ -45,10 +45,11 @@ jobs:
         python3 -m http.server 8000 &  # Run in the background
       working-directory: ./src
 
+    - name: Update WebDriver
+      run: npx webdriver-manager update --standalone --gecko --chrome
+
     - name: Run Tests with WebDriver Fix
-      run: |
-        npx webdriver-manager update --standalone --gecko --chrome
-        npx mocha "tests/oneminusone.spec.js"
+      run: npx mocha "tests/oneminusone.spec.js"
       env:
         CHROME_BIN: /usr/bin/google-chrome
         SELENIUM_BROWSER: chrome
