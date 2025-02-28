@@ -33,6 +33,11 @@ jobs:
         chrome-version: latest
         install-dependencies: true
 
+    - name: Install ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-chromedriver
+
     - name: Verify Chrome Installation
       run: google-chrome --version
 
@@ -42,7 +47,7 @@ jobs:
 
     - name: Start Web Server
       run: |
-        python3 -m http.server 8000 &  # Run in the background
+        python -m http.server 8000 &  # Run in the background
       working-directory: ./src
 
     - name: Update WebDriver
