@@ -31,7 +31,7 @@ jobs:
 
     - name: Install Dependencies
       run: npm install
-      working-directory: ./test  # Ensure the correct working directory
+      working-directory: ./tests  # Ensure the correct working directory
 
     - name: Start Web Server
       run: |
