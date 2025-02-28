@@ -41,6 +41,9 @@ jobs:
         run: |
           pkill -f chrome || true  # Ignore errors if no process is running
 
-
-      - name: Run Selenium tests
-        run: npx mocha tests/*.js
+      - name: Run Tests with WebDriver Fix
+        run: |
+          npx mocha tests/*.js
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+          SELENIUM_BROWSER: chrome
