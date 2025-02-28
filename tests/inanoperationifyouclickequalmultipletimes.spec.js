@@ -4,13 +4,12 @@ const assert = require('assert')
 
 describe('In an operation, if you click equal multiple times.', function() {
   this.timeout(30000)
+  let driver
   let vars
-
-  let driver = new Builder()
-    .forBrowser('chrome')
-    .setChromeService(new chrome.ServiceBuilder('/usr/local/bin/chromedriver'))
-    .build();
-
+  beforeEach(async function() {
+    driver = await new Builder().forBrowser('chrome').build()
+    vars = {}
+  })
   afterEach(async function() {
     await driver.quit();
   })
