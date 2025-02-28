@@ -1,56 +1,73 @@
-name: Run Selenium Tests
+name: Run tests
+
+ 
 
 on:
-  push:
-    branches:
-      - main  # Change this if your default branch is different
-  pull_request:
+
+  workflow_dispatch:
+
+  
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
 
-    services:
-      selenium:
-        image: selenium/standalone-chrome
-        ports:
-          - 4444:4444
+  test:
+
+    name: Test
+
+    runs-on: ubuntu-22.04
+
+ 
+
+    container:
+
+      image: node:20
+
+ 
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+
         with:
-          node-version: 18
 
-      - name: Install dependencies
-        run: npm install --prefix tests
+          node-version: '20'
 
-      - name: Install Chrome and ChromeDriver
-        run: |
-          sudo apt update
-          sudo apt install -y google-chrome-stable
-          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
-          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
-          wget -N "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          chmod +x /usr/local/bin/chromedriver
+      - uses: browser-actions/setup-chrome@v1
 
-      - name: Install Chrome
-        uses: browser-actions/setup-chrome@v1
         with:
+
           chrome-version: 120
+
           install-dependencies: true
 
-      - name: Verify Chrome Installation
-        run: google-chrome --version
-        
-      - name: Run Tests with WebDriver Fix
-        run: |
-          npx mocha tests/*.js
-        env:
-          CHROME_BIN: /usr/bin/google-chrome
-          SELENIUM_BROWSER: chrome
+      - run: |
+
+            cd src
+
+            python3 -m http.server 8000 &
+
+            sleep 10 &&
+
+            curl http://localhost:8000
+
+            cd ..
+
+            cd tests
+
+            npm install
+
+            ./node_modules/.bin/mocha *.js
+
+       
+
+      - uses: actions/upload-artifact@v4
+
+        if: always()
+
+        with:
+
+          name: screenshots
+
+          path: screenshots/
