@@ -1,31 +1,18 @@
 const { Builder, By, Key, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome'); // Import Chrome-specific modules
 const assert = require('assert');
+const { Builder } = require('selenium-webdriver');
+
+
 
 describe('One minus one', function() {
   this.timeout(30000);
-  let driver;
   let vars;
 
-  beforeEach(async function() {
-    // Configure Chrome options
-    const options = new chrome.Options()
-      .addArguments('--headless') // Run without UI
-      .addArguments('--no-sandbox') // Required for GitHub Actions
-      .addArguments('--disable-dev-shm-usage'); // Prevent shared memory issues
-
-    try {
-      // Initialize the Chrome WebDriver
-      driver = await new Builder()
-        .forBrowser('chrome') // Use 'chrome' as the browser
-        .setChromeOptions(options) // Set Chrome-specific options
-        .build();
-      vars = {};
-    } catch (error) {
-      console.error("Failed to initialize WebDriver:", error);
-      throw error;
-    }
-  });
+  let driver = new Builder()
+    .forBrowser('chrome')
+    .setChromeService(new chrome.ServiceBuilder('/usr/local/bin/chromedriver'))
+    .build();
 
   afterEach(async function() {
     // Quit the WebDriver after each test
