@@ -13,6 +13,8 @@
   "description": "",
   "dependencies": {
     "mocha": "^11.1.0",
-    "selenium-webdriver": "^4.28.1"
+    "selenium-webdriver": "^4.28.1",
+    "express": "^4.17.1",
+    "mongoose": "^5.10.9"
   }
 }

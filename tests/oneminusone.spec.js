@@ -9,10 +9,26 @@ describe('One minus one', function() {
   this.timeout(30000);
   let vars;
 
-  let driver = new Builder()
-    .forBrowser('chrome')
-    .setChromeService(new chrome.ServiceBuilder('/usr/local/bin/chromedriver'))
-    .build();
+  beforeEach(async function() {
+    // Configure Chrome options
+    const options = new chrome.Options()
+      .addArguments('--headless')
+      .addArguments('--no-sandbox')
+      .addArguments('--disable-dev-shm-usage')
+      .addArguments('--remote-debugging-port=9222'); 
+
+    try {
+      // Initialize the Chrome WebDriver
+      driver = await new Builder()
+        .forBrowser('chrome') // Use 'chrome' as the browser
+        .setChromeOptions(options) // Set Chrome-specific options
+        .build();
+      vars = {};
+    } catch (error) {
+      console.error("Failed to initialize WebDriver:", error);
+      throw error;
+    }
+  });
 
   afterEach(async function() {
     // Quit the WebDriver after each test

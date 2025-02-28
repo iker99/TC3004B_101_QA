@@ -1,51 +1,45 @@
-name: Run Tests
+name: Run Selenium Tests
 
 on:
-  workflow_dispatch:  # Allows manual execution
+  push:
+    branches:
+      - main  # Change this if your default branch is different
+  pull_request:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Full Ubuntu VM
+    runs-on: ubuntu-latest
+
+    services:
+      selenium:
+        image: selenium/standalone-chrome
+        ports:
+          - 4444:4444
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-      
-    
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Clear npm cache
-      run: npm cache clean --force
+      - name: Install dependencies
+        run: npm install --prefix tests
 
-    - name: Install Chrome
-      uses: browser-actions/setup-chrome@v1
-      with:
-        chrome-version: 120
-        install-dependencies: true
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 120
+          install-dependencies: true
 
-    - name: Verify Chrome Installation
-      run: google-chrome --version
+      - name: Verify Chrome Installation
+        run: google-chrome --version
 
-    - name: Kill Running Chrome Processes
-      run: |
-        pkill -f chrome || true  # Ignore errors if no process is running
-
-    - name: Install Dependencies
-      run: npm install
-      working-directory: ./tests  # Ensure the correct working directory
-
-    - name: Start Web Server
-      run: |
-        python3 -m http.server 8000 &  # Run in the background
-      working-directory: ./src
-
-    - name: Run Tests with WebDriver Fix
-      run: |
-        npx mocha "tests/oneminusone.spec.js"
-      env:
-        CHROME_BIN: /usr/bin/google-chrome
-        SELENIUM_BROWSER: chrome
+      - name: Run Tests with WebDriver Fix
+        run: |
+          npx mocha tests/*.js
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+          SELENIUM_BROWSER: chrome
