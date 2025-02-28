@@ -39,9 +39,15 @@ jobs:
           sudo mv chromedriver /usr/local/bin/
           chmod +x /usr/local/bin/chromedriver
 
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 120
+          install-dependencies: true
+
       - name: Verify Chrome Installation
         run: google-chrome --version
-
+        
       - name: Run Tests with WebDriver Fix
         run: |
           npx mocha tests/*.js
