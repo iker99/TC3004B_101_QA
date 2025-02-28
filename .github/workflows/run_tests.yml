@@ -16,47 +16,33 @@ jobs:
       with:
         node-version: 20
 
-    - name: Cache node modules
-      uses: actions/cache@v2
-      with:
-        path: tests/node_modules
-        key: ${{ runner.os }}-node_modules-${{ hashFiles('tests/package-lock.json') }}
-        restore-keys: ${{ runner.os }}-node_modules
+    - name: Install Microsoft Edge
+      run: |
+        curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+        sudo install -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/microsoft-edge.gpg
+        sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list'
+        sudo apt-get update
+        sudo apt-get install -y microsoft-edge-stable
+
+    - name: Verify Edge Installation
+      run: microsoft-edge --version
+
+    - name: Kill Running Edge Processes
+      run: |
+        pkill -f microsoft-edge || true  # Ignore errors if no process is running
 
     - name: Install Dependencies
       run: npm install
-      working-directory: ./tests
-
-    - name: Install Chrome
-      uses: browser-actions/setup-chrome@v1
-      with:
-        chrome-version: latest
-        install-dependencies: true
-
-    - name: Install ChromeDriver using WebDriver Manager
-      run: |
-        npx webdriver-manager update --versions.chrome 133.0.6943.126
-
-    - name: Verify Chrome Installation
-      run: google-chrome --version
-
-    - name: Kill Running Chrome Processes
-      run: |
-        pkill -f chrome || true  # Ignore errors if no process is running
+      working-directory: ./tests  # Ensure the correct working directory
 
     - name: Start Web Server
       run: |
-        python -m http.server 8000 &  # Run in the background
+        python3 -m http.server 8000 &  # Run in the background
       working-directory: ./src
 
     - name: Run Tests with WebDriver Fix
-      run: npx mocha "tests/oneminusone.spec.js"
-      env:
-        CHROME_BIN: /usr/bin/google-chrome
-        SELENIUM_BROWSER: chrome
-
-    - name: Debug WebDriver Installation
       run: |
-        ls -la /usr/bin/google-chrome
-        ls -la /usr/local/bin/chromedriver
-        npx webdriver-manager status
+        npx mocha "tests/emptyscreenminusanynumber.spec.js"
+      env:
+        EDGE_BIN: /usr/bin/microsoft-edge
+        SELENIUM_BROWSER: edge
