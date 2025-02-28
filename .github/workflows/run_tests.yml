@@ -1,61 +1,34 @@
-name: Run Tests
+name: Run Selenium Tests
+
 on:
-  workflow_dispatch:  # Allows manual execution
+  push:
+    branches:
+      - main  # Change this if your default branch is different
+  pull_request:
+
 jobs:
   test:
-    runs-on: ubuntu-latest  # Full Ubuntu VM
+    runs-on: ubuntu-latest
+
+    services:
+      selenium:
+        image: selenium/standalone-chrome
+        ports:
+          - 4444:4444
+
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Install Microsoft Edge
-      run: |
-        curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-        sudo install -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/microsoft-edge.gpg
-        sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list'
-        sudo apt-get update
-        sudo apt-get install -y microsoft-edge-stable
+      - name: Install dependencies
+        run: npm install
 
-    - name: Verify Edge Installation
-      run: microsoft-edge --version
-
-    - name: Install Microsoft Edge WebDriver
-      run: |
-        EDGE_VERSION=$(microsoft-edge --version | awk '{print $3}')
-        MAJOR_VERSION=${EDGE_VERSION%%.*}
-        echo "Edge version: $EDGE_VERSION, Major version: $MAJOR_VERSION"
-        DRIVER_VERSION=$(curl -s "https://msedgedriver.azureedge.net/LATEST_RELEASE_${MAJOR_VERSION}")
-        echo "Driver version: $DRIVER_VERSION"
-        curl -Lo msedgedriver.zip "https://msedgedriver.azureedge.net/${DRIVER_VERSION}/edgedriver_linux64.zip"
-        unzip msedgedriver.zip
-        chmod +x msedgedriver
-        sudo mv msedgedriver /usr/local/bin/
-        echo "Edge WebDriver installed at: $(which msedgedriver)"
-        msedgedriver --version
-
-    - name: Kill Running Edge Processes
-      run: |
-        pkill -f microsoft-edge || true  # Ignore errors if no process is running
-
-    - name: Install Dependencies
-      run: npm install
-      working-directory: ./tests  # Ensure the correct working directory
-
-    - name: Start Web Server
-      run: |
-        python3 -m http.server 8000 &  # Run in the background
-      working-directory: ./src
-
-    - name: Run Tests with WebDriver Fix
-      run: |
-        npx mocha "tests/emptyscreenminusanynumber.spec.js"
-      env:
-        EDGE_BIN: /usr/bin/microsoft-edge
-        SELENIUM_BROWSER: edge
-        PATH: ${{ github.workspace }}:/usr/local/bin:$PATH
-        EDGEWEBDRIVER: /usr/local/bin/msedgedriver
+      - name: Run Selenium tests
+        run: |
+          npm install selenium-webdriver
+          npm test
