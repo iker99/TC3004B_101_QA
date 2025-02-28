@@ -40,7 +40,7 @@ jobs:
 
     - name: Run Tests with WebDriver Fix
       run: |
-        npx mocha "test/test1_subtraction.test.js"
+        npx mocha "tests/oneminusone.spec.js"
       env:
         CHROME_BIN: /usr/bin/google-chrome
         SELENIUM_BROWSER: chrome
