@@ -28,13 +28,19 @@ jobs:
       - name: Install dependencies
         run: npm install --prefix tests
 
-      - name: Install Chrome WebDriver
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 120
+          install-dependencies: true
+
+      - name: Verify Chrome Installation
+        run: google-chrome --version
+
+      - name: Kill Running Chrome Processes
         run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-driver
-          if [ ! -L /usr/bin/chromedriver ]; then
-            sudo ln -s /usr/lib/chromium/chromedriver /usr/bin/chromedriver
-          fi
+          pkill -f chrome || true  # Ignore errors if no process is running
+
 
       - name: Run Selenium tests
         run: npx mocha tests/*.js
