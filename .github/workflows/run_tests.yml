@@ -53,3 +53,9 @@ jobs:
       env:
         CHROME_BIN: /usr/bin/google-chrome
         SELENIUM_BROWSER: chrome
+
+    - name: Debug WebDriver Installation
+      run: |
+        ls -la /usr/bin/google-chrome
+        ls -la /usr/local/bin/chromedriver
+        npx webdriver-manager status
