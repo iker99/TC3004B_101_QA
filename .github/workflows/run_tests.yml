@@ -30,7 +30,7 @@ jobs:
     - name: Install Chrome
       uses: browser-actions/setup-chrome@v1
       with:
-        chrome-version: 133.0.6943.126
+        chrome-version: latest
         install-dependencies: true
 
     - name: Verify Chrome Installation
