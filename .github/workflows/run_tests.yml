@@ -31,12 +31,10 @@ jobs:
       - name: Install Chrome WebDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y chromium-chromedriver
+          sudo apt-get install -y chromium-driver
           if [ ! -L /usr/bin/chromedriver ]; then
-            sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+            sudo ln -s /usr/lib/chromium/chromedriver /usr/bin/chromedriver
           fi
 
       - name: Run Selenium tests
-        run: |
-          npm install selenium-webdriver
-          npx mocha tests
+        run: npx mocha tests/*.js
