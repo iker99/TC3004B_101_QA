@@ -31,4 +31,4 @@ jobs:
       - name: Run Selenium tests
         run: |
           npm install selenium-webdriver
-          npm tests
+          npx mocha tests
