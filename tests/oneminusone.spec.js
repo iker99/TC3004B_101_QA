@@ -10,9 +10,10 @@ describe('One minus one', function() {
   beforeEach(async function() {
     // Configure Chrome options
     const options = new chrome.Options()
-      .addArguments('--headless') // Run without UI
-      .addArguments('--no-sandbox') // Required for GitHub Actions
-      .addArguments('--disable-dev-shm-usage'); // Prevent shared memory issues
+      .addArguments('--headless')
+      .addArguments('--no-sandbox')
+      .addArguments('--disable-dev-shm-usage')
+      .addArguments('--remote-debugging-port=9222'); 
 
     try {
       // Initialize the Chrome WebDriver
