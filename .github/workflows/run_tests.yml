@@ -1,31 +1,36 @@
 name: Run tests
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Test
+    runs-on: ubuntu-22.04
+
+    container:
+      image: node:20
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Start server
-      run: npm start &
-
-    - name: Wait for server to be ready
-      run: |
-        until curl --output /dev/null --silent --head --fail http://localhost:8000; do
-          sleep 1
-        done
-
-    - name: Run tests
-      run: curl http://localhost:8000
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 120
+          install-dependencies: true
+      - run: |
+            cd src
+            python3 -m http.server 8000 &
+            sleep 5
+            curl --retry 5 --retry-delay 5 --retry-connrefused http://localhost:8000
+            cd ..
+            cd tests
+            npm install
+            ./node_modules/.bin/mocha *.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: screenshots/
