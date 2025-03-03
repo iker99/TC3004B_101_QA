@@ -1,37 +1,45 @@
-name: Run tests
+name: Run Tests
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main 
 
 jobs:
   test:
-    name: Test
-    runs-on: ubuntu-22.04
-
-    container:
-      image: node:20
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: 120
-          install-dependencies: true
-      - run: |
-            cd src
-            python3 -m http.server 8000 &
-            sleep 5
-            curl --retry 5 --retry-delay 5 --retry-connrefused http://localhost:8000
-            cd ..
-            cd tests
-            npm install
-            chmod +x ./node_modules/.bin/mocha
-            ./node_modules/.bin/mocha *.js
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: screenshots
-          path: screenshots/
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install Chrome
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: 120
+        install-dependencies: true
+
+    - name: Verify Chrome Installation
+      run: google-chrome --version
+
+    - name: Install Dependencies
+      run: npm install
+      working-directory: ./tests
+
+    - name: Start Web Server
+      run: python3 -m http.server 8000 &  
+      working-directory: ./src
+
+    - name: Run Selenium Tests
+      run: |
+        ./node_modules/.bin/mocha *.js
+      working-directory: ./tests
+      env:
+        CHROME_BIN: /usr/bin/google-chrome
+        SELENIUM_BROWSER: chrome
