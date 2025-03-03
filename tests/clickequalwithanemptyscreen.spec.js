@@ -37,4 +37,5 @@ describe('Click equal with an empty screen', function() {
     await driver.findElement(By.css("body")).click()
     await driver.findElement(By.css("button:nth-child(2)")).click()
   })
+  
 })

@@ -30,6 +30,7 @@ describe('Empty screen minus any number', function() {
       await fs.writeFileSync(`screenshots/${filename}.png`, endcodedString, 'base64');
       await driver.quit();
     }
+
   })
   it('Empty screen minus any number', async function() {
     await driver.get("http://localhost:8000/")

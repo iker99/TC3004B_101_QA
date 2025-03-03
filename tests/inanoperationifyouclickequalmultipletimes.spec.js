@@ -47,4 +47,5 @@ describe('In an operation, if you click equal multiple times.', function() {
     }
     await driver.findElement(By.css("button:nth-child(2)")).click()
   })
+  
 })
