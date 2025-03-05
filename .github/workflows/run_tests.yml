@@ -27,7 +27,7 @@ jobs:
             cd ..
             cd tests
             npm install
-            ./node_modules/.bin/mocha *.js
+            npx mocha *.js
       - uses: actions/upload-artifact@v4
         if: always()
         with:
